@@ -2,8 +2,12 @@ function submitComment(form) {
     const drawingId = form.dataset.drawingId;
     const input = form.querySelector('input[name="comment_text"]');
     const commentText = input.value.trim();
-    
-    if (!commentText) return;
+    const username = localStorage.getItem('username'); // Retrieve username from localStorage
+
+    if (!commentText || !username) {
+        alert("Please enter a comment and make sure you are logged in.");
+        return;
+    }
 
     fetch('/add-comment/', {
         method: 'POST',
@@ -13,7 +17,8 @@ function submitComment(form) {
         },
         body: JSON.stringify({
             drawing_id: drawingId,
-            text: commentText
+            text: commentText,
+            username: username  // Send username in request
         })
     })
     .then(response => {
@@ -25,22 +30,18 @@ function submitComment(form) {
     .then(data => {
         // Create new comment element
         const commentsList = form.closest('.drawing-card').querySelector('.comments-list');
-        const newComment = document.createElement('div');
-        newComment.className = 'comment bg-gray-700 rounded p-2 mb-2';
-        newComment.innerHTML = `
-            <div class="flex justify-between items-center">
-                <span class="text-blue-400 text-sm">@${data.username}</span>
-                <span class="text-gray-400 text-xs">${new Date().toLocaleString()}</span>
-            </div>
-            <p class="text-white text-sm mt-1">${data.text}</p>
-        `;
-        
+        const newComment = createCommentElement({
+            username: username,
+            text: commentText,
+            created_at: new Date().toISOString() // Use ISO format for consistency
+        });
+
         // Add to comments list
         commentsList.appendChild(newComment);
-        
+
         // Clear input
         input.value = '';
-        
+
         // Scroll to bottom of comments
         commentsList.scrollTop = commentsList.scrollHeight;
     })
@@ -50,18 +51,19 @@ function submitComment(form) {
     });
 }
 
-    function createCommentElement(comment) {
-        const div = document.createElement('div');
-        div.className = 'comment bg-gray-700 rounded p-2 mb-2';
-        div.innerHTML = `
-            <div class="flex justify-between items-center">
-                <span class="text-blue-400 text-sm">@${comment.username}</span>
-                <span class="text-gray-400 text-xs">${formatDate(comment.created_at)}</span>
-            </div>
-            <p class="text-white text-sm mt-1">${comment.text}</p>
-        `;
-        return div;
-    }
+function createCommentElement(comment) {
+    const div = document.createElement('div');
+    div.className = 'comment bg-gray-700 rounded p-2 mb-2';
+    div.innerHTML = `
+        <div class="flex justify-between items-center">
+            <span class="text-blue-400 text-sm">@${comment.username}</span>
+            <span class="text-gray-400 text-xs">${formatDate(comment.created_at)}</span>
+        </div>
+        <p class="text-white text-sm mt-1">${comment.text}</p>
+    `;
+    return div;
+}
+
 
     function formatDate(dateString) {
         const date = new Date(dateString);
