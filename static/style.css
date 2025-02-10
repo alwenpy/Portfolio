@@ -138,3 +138,23 @@ div {
     display: none;
   }
 }
+
+
+#canvasContainer {
+  width: 100%;
+  justify-content: center;
+}
+
+#drawingCanvas {
+  max-width: 100%;
+  width: 90vw; /* Make it take up most of the screen width */
+  height: auto; /* Maintain aspect ratio */
+  border: 2px solid #4a4a4a;
+}
+
+@media (max-width: 768px) {
+  #drawingCanvas {
+    width: 95vw;
+    height: 50vh; /* Adjust height for better fit */
+  }
+}

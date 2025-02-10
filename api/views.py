@@ -11,6 +11,8 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from .models import Drawing, Comment
 from alwen import settings
+from django.conf import settings
+
 
 GEMINI_API_KEY = "AIzaSyDWuh6JDfGppgGyKCHRKpKMfFmP0EPYpe8"
 genai.configure(api_key=GEMINI_API_KEY)
@@ -94,21 +96,6 @@ def get_anime_of_the_day(request):
     return JsonResponse({"error": "No GIFs found."}, status=404)
 
 
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.views.generic import TemplateView
-from django.conf import settings
-import os
-
-
-def start_canvas(request):
-    """Start the Air Canvas application"""
-    try:
-        canvas = AirCanvas()
-        canvas.run()
-        return JsonResponse({'status': 'success'})
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)})
 
 from django.contrib.auth.models import User
 @csrf_exempt
