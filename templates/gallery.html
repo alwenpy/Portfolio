@@ -1,0 +1,67 @@
+<!-- gallery.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="gallery-section mb-16 bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-semibold bg-gradient-to-r from-blue-500 to-blue-700 text-white px-3 py-2 rounded-lg shadow-lg">Art Gallery</h2>
+        <a href="/" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
+            Create New Drawing
+        </a>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="drawingsGrid">
+        {% for drawing in drawings %}
+        <div class="drawing-card bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+            <!-- Drawing Image -->
+            <div class="relative aspect-w-4 aspect-h-3">
+                <img src="{{ drawing.image }}" alt="Drawing by {{ drawing.user.username }}" 
+                     class="w-full h-full object-contain bg-white">
+            </div>
+            
+            <!-- Drawing Info -->
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-blue-400 font-medium">@{{ drawing.user.username }}</span>
+                    <span class="text-gray-400 text-sm">{{ drawing.created_at|date:"M d, Y" }}</span>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="comments-section mt-4">
+                    <h4 class="text-white font-medium mb-2">Comments</h4>
+                    <div class="comments-list max-h-40 overflow-y-auto mb-3">
+                        {% for comment in drawing.comments.all %}
+                        <div class="comment bg-gray-700 rounded p-2 mb-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-400 text-sm">@{{ comment.user.username }}</span>
+                                <span class="text-gray-400 text-xs">{{ comment.created_at|date:"M d, g:i A" }}</span>
+                            </div>
+                            <p class="text-white text-sm mt-1">{{ comment.text }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Comment Form -->
+                    <form class="comment-form flex gap-2" data-drawing-id="{{ drawing.id }}" onsubmit="return false;">
+                        {% csrf_token %}
+                        <input type="text" 
+                               name="comment_text"
+                               class="flex-grow px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Add a comment...">
+                        <button type="button" 
+                                onclick="submitComment(this.closest('form'))"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+</section>
+{% endblock %}

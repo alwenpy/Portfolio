@@ -7,7 +7,9 @@ from django.http import JsonResponse
 import google.generativeai as genai
 from django.views.decorators.csrf import csrf_exempt
 import json
-
+from django.shortcuts import render
+from django.views.decorators.http import require_http_methods
+from .models import Drawing, Comment
 from alwen import settings
 
 GEMINI_API_KEY = "AIzaSyDWuh6JDfGppgGyKCHRKpKMfFmP0EPYpe8"
@@ -90,3 +92,148 @@ def get_anime_of_the_day(request):
             gif_url = data["results"][0]["media_formats"]["gif"]["url"]
             return JsonResponse({"gif_url": gif_url})
     return JsonResponse({"error": "No GIFs found."}, status=404)
+
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.generic import TemplateView
+from django.conf import settings
+import os
+from .air_canvas import AirCanvas
+
+class AirCanvasView(TemplateView):
+    template_name = 'index.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get list of saved drawings
+        drawings_dir = os.path.join(settings.MEDIA_ROOT, 'drawings')
+        drawings = []
+        if os.path.exists(drawings_dir):
+            drawings = [f for f in os.listdir(drawings_dir) if f.endswith(('.png', '.jpg'))]
+            drawings.sort(reverse=True)  # Most recent first
+        context['drawings'] = drawings
+        return context
+
+def start_canvas(request):
+    """Start the Air Canvas application"""
+    try:
+        canvas = AirCanvas()
+        canvas.run()
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+from django.contrib.auth.models import User
+@csrf_exempt
+def savedrawing(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+            image_data = data.get("image")
+            
+            print(f"Received request for username: {username}")  
+            # get or create user
+            user, created = User.objects.get_or_create(username=username)            
+            
+            if not username or not image_data:
+                return JsonResponse({"error": "Missing username or image data"}, status=400)
+            
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                print(f"User {username} not found in database")  # Debug print
+                # Create user if not exists
+                user = User.objects.create(username=username)
+            
+            drawing = Drawing.objects.create(user=user, image=image_data)
+            return JsonResponse({"message": "Drawing saved successfully!"}, status=201)
+            
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        except Exception as e:
+            print(f"Error in savedrawing: {str(e)}")  # Debug print
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+def store_username(request):
+    
+    print("-----------------------------------------------------------",request.body)
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+
+            if not username:
+                return JsonResponse({"error": "Username is required"}, status=400)
+
+            user, created = User.objects.get_or_create(username=username)
+
+            return JsonResponse({"message": "Username stored successfully", "user_id": user.id, "username": user.username}, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+
+def gallery(request):
+    """Display all drawings with their comments"""
+    drawings = Drawing.objects.all().order_by('-created_at')
+    return render(request, 'gallery.html', {'drawings': drawings})
+
+@require_http_methods(["POST"])
+def add_comment(request):
+    """Add a comment to a drawing"""
+    try:
+        data = json.loads(request.body)
+        drawing_id = data.get('drawing_id')
+        text = data.get('text')
+
+        if not drawing_id or not text:
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+        drawing = Drawing.objects.get(id=drawing_id)
+        comment = Comment.objects.create(
+            user=request.user,
+            drawing=drawing,
+            text=text
+        )
+
+        return JsonResponse({
+            'id': comment.id,
+            'username': comment.user.username,
+            'text': comment.text,
+            'created_at': comment.created_at.isoformat()
+        })
+
+    except Drawing.DoesNotExist:
+        return JsonResponse({'error': 'Drawing not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def get_drawings(request):
+    """Get all drawings with their comments"""
+    drawings = Drawing.objects.all().order_by('-created_at')
+    drawings_data = []
+    
+    for drawing in drawings:
+        comments = [{
+            'id': comment.id,
+            'username': comment.user.username,
+            'text': comment.text,
+            'created_at': comment.created_at.isoformat()
+        } for comment in drawing.comments.all()]
+        
+        drawings_data.append({
+            'id': drawing.id,
+            'image': drawing.image,
+            'username': drawing.user.username,
+            'created_at': drawing.created_at.isoformat(),
+            'comments': comments
+        })
+    
+    return JsonResponse(drawings_data, safe=False)

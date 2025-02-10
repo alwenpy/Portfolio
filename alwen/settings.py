@@ -25,14 +25,15 @@ SECRET_KEY = 'django-insecure-63sboomhgym+c^t_p#n!-+kld@zag-kzjolkog2je3n8ef2736
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['alwen.pythonanywhere.com', '127.0.0.1', 'localhost']
 
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "https://alwen.pythonanywhere.com", 
-    "http://127.0.0.1:8000",# Your front-end domain
+    "http://127.0.0.1:8000",
 ]
-# Application definition
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

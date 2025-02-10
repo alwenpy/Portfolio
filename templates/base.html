@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Arvind's Portfolio{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        /* Add any custom styles here */
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #93C5FD;
+            transition: width 0.3s ease-in-out;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* For sticky footer */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Top Fixed Footer (Navigation) -->
+    <footer id="footer" class="w-full bg-gray-900 shadow-lg top-0 z-50 hidden lg:block">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center p-4">
+            <!-- Name and Avatar Section -->
+            <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                <!-- Avatar -->
+                <img src="/static/avatar.jpeg" alt="Avatar" class="w-12 h-12 rounded-full shadow-md border-2 border-gray-700" />
+                <!-- Name -->
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white bg-gradient-to-r from-blue-700 to-blue-900 rounded-lg px-4 py-2 tracking-wide shadow-md">Arvind Srivastav</h1>
+                    <p class="text-sm font-medium text-gray-400 italic">aka Alwen</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap items-center space-x-4">
+                <a href="#about" class="nav-link text-gray-300 hover:text-blue-300 transition duration-200 ease-in-out">About</a>
+                <a href="#education" class="nav-link text-gray-300 hover:text-blue-300 transition duration-200 ease-in-out">Education</a>
+                <a href="#work" class="nav-link text-gray-300 hover:text-blue-300 transition duration-200 ease-in-out">Work</a>
+                <a href="#skills" class="nav-link text-gray-300 hover:text-blue-300 transition duration-200 ease-in-out">Skills</a>
+                <a href="#contact" class="nav-link text-gray-300 hover:text-blue-300 transition duration-200 ease-in-out">Contact</a>
+                <a href="https://drive.google.com/file/d/1aj4pQMjdlIfG89d3M4mgX5MDbCCbOQ84/view?usp=drive_link" download class="text-gray-300 hover:text-blue-300 transition duration-200 ease-in-out">
+                    Resume
+                    <i class="fas fa-download text-gray-300 hover:text-blue-300 transition duration-200 ease-in-out"></i>
+                </a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bottom Fixed Header (Footer) -->
+    <header class="bg-gray-900 shadow-lg sticky bottom-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center p-4">
+            <p class="text-gray-500">© 2024 Made with 🩵 by Arvind(alwen)</p>
+            <nav class="flex flex-wrap space-x-4 mt-2 md:mt-0">
+                <a href="mailto:alwen1928@gmail.com" class="text-gray-300 hover:text-blue-300 transform hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/alwenpy/" target="_blank" class="text-gray-300 hover:text-blue-300 transform hover:scale-110 transition-all duration-300">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://github.com/alwenpy" target="_blank" class="text-gray-300 hover:text-blue-300 transform hover:scale-110 transition-all duration-300">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.instagram.com/oyealwen/" target="_blank" class="text-gray-300 hover:text-blue-300 transform hover:scale-110 transition-all duration-300">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- JavaScript -->
+    {% block extra_js %}
+    <script>
+        function submitComment(form) {
+            const drawingId = form.dataset.drawingId;
+            const input = form.querySelector('input[name="comment_text"]');
+            const commentText = input.value.trim();
+            
+            if (!commentText) return;
+        
+            fetch('/add-comment/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    drawing_id: drawingId,
+                    text: commentText
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Create new comment element
+                const commentsList = form.closest('.drawing-card').querySelector('.comments-list');
+                const newComment = document.createElement('div');
+                newComment.className = 'comment bg-gray-700 rounded p-2 mb-2';
+                newComment.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-400 text-sm">@${data.username}</span>
+                        <span class="text-gray-400 text-xs">${new Date().toLocaleString()}</span>
+                    </div>
+                    <p class="text-white text-sm mt-1">${data.text}</p>
+                `;
+                
+                // Add to comments list
+                commentsList.appendChild(newComment);
+                
+                // Clear input
+                input.value = '';
+                
+                // Scroll to bottom of comments
+                commentsList.scrollTop = commentsList.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to add comment. Please try again.');
+            });
+        }    </script>
+    {% endblock %}
+</body>
+</html>
