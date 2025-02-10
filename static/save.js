@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             const imageData = canvas.toDataURL("image/png");
-            
-            const response = await fetch("http://127.0.0.1:8000/savedrawing/", {
+
+            const response = await fetch("https://alwen.pythonanywhere.com/savedrawing/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             console.log("Response status:", response.status);
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error("Error response:", errorText);

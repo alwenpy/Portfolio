@@ -1,5 +1,5 @@
 // DOM Elements
-let canvas, ctx, video, colorPicker, pointer, canvasContainer, usernameWrapper, 
+let canvas, ctx, video, colorPicker, pointer, canvasContainer, usernameWrapper,
     launchWrapper, usernameInput, saveUsernameBtn, message,saveCanvas;
 
 // Canvas state
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveUsernameBtn = document.getElementById("saveUsername");
     message = document.getElementById("message");
     saveCanvas = document.getElementById("saveCanvas");
-    
+
 
     // Initialize the application
     init();
@@ -110,7 +110,7 @@ function showLaunchButton() {
     if (usernameWrapper && launchWrapper) {
         usernameWrapper.classList.add("hidden");
         launchWrapper.classList.remove("hidden");
-        
+
         if (!document.getElementById("startCanvas")) {
             const button = document.createElement("button");
             button.id = "startCanvas";
@@ -137,19 +137,19 @@ function handleUsernameSubmit() {
 // Canvas Launch and Initialization
 async function startCanvas() {
     if (!canvasContainer) return;
-    
+
     try {
         canvasContainer.classList.remove("hidden");
         saveCanvas.classList.remove("hidden");
 
         // Initialize camera
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
                 width: 480,
                 height: 360
-            } 
+            }
         });
-        
+
         if (video) {
             video.srcObject = stream;
             await video.play();
@@ -158,7 +158,7 @@ async function startCanvas() {
 
         // Initialize MediaPipe Hands
         await initializeHandTracking();
-        
+
         // Start camera feed
         camera = new Camera(video, {
             onFrame: async () => {

@@ -34,17 +34,17 @@ def generate_js_with_gemini(command: str) -> str:
         f"Try to display the implementation of the command in a div in the section with id=dynamic in the frontend."
         f"whatever you display apply some styles to it."
     )
-    
+
     try:
         response = model.generate_content([prompt])
         print("Gemini API Response:", response.text)
 
         cleaned_js = (
             response.text
-            .replace("```js", "")  
+            .replace("```js", "")
             .replace("```", "")
-            .replace("javascript", "")  
-            .strip()  
+            .replace("javascript", "")
+            .strip()
         )
 
         print("Cleaned JavaScript:", cleaned_js)
@@ -99,21 +99,7 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 from django.conf import settings
 import os
-from .air_canvas import AirCanvas
 
-class AirCanvasView(TemplateView):
-    template_name = 'index.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Get list of saved drawings
-        drawings_dir = os.path.join(settings.MEDIA_ROOT, 'drawings')
-        drawings = []
-        if os.path.exists(drawings_dir):
-            drawings = [f for f in os.listdir(drawings_dir) if f.endswith(('.png', '.jpg'))]
-            drawings.sort(reverse=True)  # Most recent first
-        context['drawings'] = drawings
-        return context
 
 def start_canvas(request):
     """Start the Air Canvas application"""
@@ -132,24 +118,24 @@ def savedrawing(request):
             data = json.loads(request.body)
             username = data.get("username")
             image_data = data.get("image")
-            
-            print(f"Received request for username: {username}")  
+
+            print(f"Received request for username: {username}")
             # get or create user
-            user, created = User.objects.get_or_create(username=username)            
-            
+            user, created = User.objects.get_or_create(username=username)
+
             if not username or not image_data:
                 return JsonResponse({"error": "Missing username or image data"}, status=400)
-            
+
             try:
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
                 print(f"User {username} not found in database")  # Debug print
                 # Create user if not exists
                 user = User.objects.create(username=username)
-            
+
             drawing = Drawing.objects.create(user=user, image=image_data)
             return JsonResponse({"message": "Drawing saved successfully!"}, status=201)
-            
+
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
         except Exception as e:
@@ -158,7 +144,7 @@ def savedrawing(request):
 
     return JsonResponse({"error": "Invalid request"}, status=400)
 def store_username(request):
-    
+
     print("-----------------------------------------------------------",request.body)
     if request.method == "POST":
         try:
@@ -219,7 +205,7 @@ def get_drawings(request):
     """Get all drawings with their comments"""
     drawings = Drawing.objects.all().order_by('-created_at')
     drawings_data = []
-    
+
     for drawing in drawings:
         comments = [{
             'id': comment.id,
@@ -227,7 +213,7 @@ def get_drawings(request):
             'text': comment.text,
             'created_at': comment.created_at.isoformat()
         } for comment in drawing.comments.all()]
-        
+
         drawings_data.append({
             'id': drawing.id,
             'image': drawing.image,
@@ -235,5 +221,5 @@ def get_drawings(request):
             'created_at': drawing.created_at.isoformat(),
             'comments': comments
         })
-    
+
     return JsonResponse(drawings_data, safe=False)
