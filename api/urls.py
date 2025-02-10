@@ -10,6 +10,7 @@ urlpatterns = [
     path('gallery/', views.gallery, name='gallery'),
     path('add-comment/', views.add_comment, name='add_comment'),
     path('get-drawings/', views.get_drawings, name='get_drawings'),
+    path("save-username/", views.save_username, name="save_username"),
 
 
 

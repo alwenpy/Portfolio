@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,59 +101,8 @@
     </header>
 
     <!-- JavaScript -->
-    {% block extra_js %}
-    <script>
-        function submitComment(form) {
-            const drawingId = form.dataset.drawingId;
-            const input = form.querySelector('input[name="comment_text"]');
-            const commentText = input.value.trim();
-            
-            if (!commentText) return;
-        
-            fetch('/add-comment/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify({
-                    drawing_id: drawingId,
-                    text: commentText
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Create new comment element
-                const commentsList = form.closest('.drawing-card').querySelector('.comments-list');
-                const newComment = document.createElement('div');
-                newComment.className = 'comment bg-gray-700 rounded p-2 mb-2';
-                newComment.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="text-blue-400 text-sm">@${data.username}</span>
-                        <span class="text-gray-400 text-xs">${new Date().toLocaleString()}</span>
-                    </div>
-                    <p class="text-white text-sm mt-1">${data.text}</p>
-                `;
-                
-                // Add to comments list
-                commentsList.appendChild(newComment);
-                
-                // Clear input
-                input.value = '';
-                
-                // Scroll to bottom of comments
-                commentsList.scrollTop = commentsList.scrollHeight;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to add comment. Please try again.');
-            });
-        }    </script>
-    {% endblock %}
+    <script src="{% static 'gallery.js' %}" defer></script>
+
+
 </body>
 </html>

@@ -128,11 +128,36 @@ function handleUsernameSubmit() {
         showMessage("Please enter a username!", "error");
         return;
     }
+
+    // Save in localStorage
     localStorage.setItem("airCanvasUsername", JSON.stringify({ value: username }));
-    showMessage("Username saved successfully!", "success");
+
+    // Send to backend for saving in DB
+    fetch('/save-username/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ username: username })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage("Username saved successfully!", "success");
+        } else {
+            showMessage("Failed to save username!", "error");
+        }
+    })
+    .catch(error => {
+        console.error("Error saving username:", error);
+        showMessage("An error occurred while saving username!", "error");
+    });
+
     showLaunchButton();
     displayUsername();
 }
+
 
 // Canvas Launch and Initialization
 async function startCanvas() {

@@ -150,13 +150,11 @@ def store_username(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-
-
 def gallery(request):
     """Display all drawings with their comments"""
     drawings = Drawing.objects.all().order_by('-created_at')
     return render(request, 'gallery.html', {'drawings': drawings})
-
+@csrf_exempt 
 @require_http_methods(["POST"])
 def add_comment(request):
     """Add a comment to a drawing"""
@@ -164,13 +162,17 @@ def add_comment(request):
         data = json.loads(request.body)
         drawing_id = data.get('drawing_id')
         text = data.get('text')
+        username = data.get('username')  # Retrieve username from the request
 
-        if not drawing_id or not text:
+        if not drawing_id or not text or not username:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+        # Fetch user from DB (create if not exists)
+        user, _ = User.objects.get_or_create(username=username)
 
         drawing = Drawing.objects.get(id=drawing_id)
         comment = Comment.objects.create(
-            user=request.user,
+            user=user,
             drawing=drawing,
             text=text
         )
@@ -210,3 +212,27 @@ def get_drawings(request):
         })
 
     return JsonResponse(drawings_data, safe=False)
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.contrib.auth.models import User
+@csrf_exempt
+def save_username(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+
+            if not username:
+                return JsonResponse({"success": False, "message": "Username is required"}, status=400)
+
+            # Save or update the username in the database
+            user, created = User.objects.get_or_create(username=username)
+            return JsonResponse({"success": True, "message": "Username saved successfully!"})
+        
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
