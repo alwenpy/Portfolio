@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -11,7 +13,9 @@ urlpatterns = [
     path('add-comment/', views.add_comment, name='add_comment'),
     path('get-drawings/', views.get_drawings, name='get_drawings'),
     path("save-username/", views.save_username, name="save_username"),
+        path('api/enhance_sketch/', views.enhance_sketch, name='enhance_sketch'),
 
 
 
-]
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

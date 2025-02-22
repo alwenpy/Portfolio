@@ -12,7 +12,7 @@ async function applyChanges() {
 
   try {
     const response = await fetch(
-      "https://alwen.pythonanywhere.com/apply-changes/",
+      "http://127.0.0.1:8000/apply-changes/",
       {
         method: "POST",
         headers: {

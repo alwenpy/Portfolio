@@ -134,3 +134,20 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 TEMPLATES[0]['DIRS'] = [BASE_DIR / "templates"]
+
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": "di5utii9c",
+    "API_KEY": "889633638313984",
+    "API_SECRET": "xOiEPYAQM4r-sPe7DbLdO14GbgU",
+}
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+    api_key=CLOUDINARY_STORAGE["API_KEY"],
+    api_secret=CLOUDINARY_STORAGE["API_SECRET"]
+)

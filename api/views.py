@@ -1,6 +1,11 @@
+import ast
 from http.client import HTTPException
+import io
 import os
 import random
+import time
+from urllib.parse import urlparse
+import openai
 import requests
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -12,9 +17,11 @@ from django.views.decorators.http import require_http_methods
 from .models import Drawing, Comment
 from alwen import settings
 from django.conf import settings
+from PIL import Image
+import base64
 
 
-GEMINI_API_KEY = "AIzaSyDWuh6JDfGppgGyKCHRKpKMfFmP0EPYpe8"
+GEMINI_API_KEY = "AIzaSyAYeXe5fodCRV1tdVEVd1VPsLq8oGwPSuw"
 genai.configure(api_key=GEMINI_API_KEY)
 TENOR_API_KEY = "AIzaSyDuN550ygThE8-A0nFuJGXcgM3eNVCwNW8"
 CKEY = "Anime"
@@ -213,11 +220,6 @@ def get_drawings(request):
 
     return JsonResponse(drawings_data, safe=False)
 
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-from django.contrib.auth.models import User
 @csrf_exempt
 def save_username(request):
     if request.method == "POST":
@@ -236,3 +238,41 @@ def save_username(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+
+import os
+import base64
+import io
+import json
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from PIL import Image
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+@csrf_exempt
+def enhance_sketch(request):
+    if request.method == 'POST' and request.FILES.get('image'):
+        image_file = request.FILES['image']
+
+        # Upload image to Cloudinary with AI enhancement transformation
+        response = cloudinary.uploader.upload(
+            image_file,
+            folder="enhanced_sketches",
+            transformation=[
+    {"effect": "art:incognito"},  # A more detailed AI sketch effect
+    {"effect": "cartoonify"},  # Adds bold outlines and smooth shading
+    {"effect": "sharpen:80"},  # Enhances fine details
+    {"effect": "outline:30"},  # Highlights edges for a cleaner sketch look
+    {"effect": "gradient_fade:symmetric"},  # Adds a soft fade for artistic appeal
+    {"quality": "auto:best"}  # Maximizes quality dynamically
+]
+
+        )
+
+        if "secure_url" in response:
+            return JsonResponse({"enhanced_image_url": response["secure_url"]})
+
+        return JsonResponse({"error": "Cloudinary AI enhancement failed"}, status=500)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)

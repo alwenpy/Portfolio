@@ -260,7 +260,12 @@
           <canvas id="drawingCanvas" class="border-2 border-gray-600 rounded-lg bg-white" width="800" height="600"></canvas>
           
           <div id="pointer" class="absolute w-5 h-5 rounded-full border-2 border-black pointer-events-none" style="transform: translate(-50%, -50%)"></div>
+          <form id="enhanceForm">
+            {% csrf_token %}
 
+          <button id="enhanceAI" class="bg-purple-600 text-white px-4 py-2 rounded">Enhance with AI</button>
+          <img id="enhancedImage" class="hidden mt-4">
+        </form>
         </div>
         <div class="mt-4 flex justify-center">
           {% csrf_token %}
@@ -536,6 +541,7 @@
     <script src="/static/dynamic_script.js" defer></script>
     <script src="/static/scripts.js" defer></script>
     <script src="/static/canvas.js" defer></script>
+    <script src="/static/gallery.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
