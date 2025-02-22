@@ -1,11 +1,6 @@
-import ast
 from http.client import HTTPException
-import io
 import os
 import random
-import time
-from urllib.parse import urlparse
-import openai
 import requests
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -17,8 +12,7 @@ from django.views.decorators.http import require_http_methods
 from .models import Drawing, Comment
 from alwen import settings
 from django.conf import settings
-from PIL import Image
-import base64
+
 
 
 GEMINI_API_KEY = "AIzaSyAYeXe5fodCRV1tdVEVd1VPsLq8oGwPSuw"
