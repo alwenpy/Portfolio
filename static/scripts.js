@@ -12,7 +12,7 @@ async function applyChanges() {
 
   try {
     const response = await fetch(
-      "http://127.0.0.1:8000/apply-changes/",
+      "https://alwen.pythonanywhere.com/apply-changes/",
       {
         method: "POST",
         headers: {
@@ -202,7 +202,7 @@ document
     const scrollToFooterBtn = document.querySelector('#scrollToFooter'); // Your button
     const footer = document.querySelector('#footer'); // Your footer
     const header = document.querySelector('#header'); // Your header
-  
+
     // Function to handle button visibility based on screen size
     function updateVisibility() {
       if (window.innerWidth < 1024) {
@@ -211,13 +211,13 @@ document
         scrollToFooterBtn.style.display = "flex"; // Default state for larger screens
       }
     }
-  
+
     // Call updateVisibility when the script loads
     updateVisibility();
-  
+
     // Update visibility dynamically on window resize
     window.addEventListener("resize", updateVisibility);
-  
+
     // IntersectionObserver for footer visibility
     const footerObserver = new IntersectionObserver(
       (entries) => {
@@ -236,10 +236,10 @@ document
         threshold: 0.1, // Trigger when 10% of the footer is visible
       }
     );
-  
+
     // Observe the footer
     footerObserver.observe(footer);
-  
+
     // IntersectionObserver for header visibility
     const headerObserver = new IntersectionObserver(
       ([entry]) => {
@@ -256,16 +256,16 @@ document
         threshold: 0.1, // Trigger when 10% of the header is visible
       }
     );
-  
+
     // Observe the header
     headerObserver.observe(header);
-  
+
     // Function to hide button when scrolled to the bottom
     function checkScrollPosition() {
       if (window.innerWidth >= 1024) {
         const scrollPosition = window.scrollY + window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
-  
+
         if (scrollPosition >= documentHeight - 10) {
           // Hide button when scrolled to the bottom
           scrollToFooterBtn.style.display = "none";
@@ -275,19 +275,19 @@ document
         }
       }
     }
-  
+
     // Add a scroll event listener to check the scroll position
     window.addEventListener("scroll", checkScrollPosition);
   });
   document.addEventListener("mousemove", (event) => {
     const gradient = document.getElementById("cursor-gradient");
-  
+
     // Update gradient position
     gradient.style.left = `${event.clientX}px`;
     gradient.style.top = `${event.clientY}px`;
   });
 
-  
+
   // custom cursor
 
   const body = document.body;
@@ -396,4 +396,3 @@ const links = document.querySelectorAll(".js-link");
 });
 
 
-  

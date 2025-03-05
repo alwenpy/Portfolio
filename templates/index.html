@@ -258,14 +258,9 @@
         <div id="canvasContainer" class="hidden relative mt-6">
           <video id="video" class="hidden"></video>
           <canvas id="drawingCanvas" class="border-2 border-gray-600 rounded-lg bg-white" width="800" height="600"></canvas>
-          
-          <div id="pointer" class="absolute w-5 h-5 rounded-full border-2 border-black pointer-events-none" style="transform: translate(-50%, -50%)"></div>
-          <form id="enhanceForm">
-            {% csrf_token %}
 
-          <button id="enhanceAI" class="bg-purple-600 text-white px-4 py-2 rounded">Enhance with AI</button>
-          <img id="enhancedImage" class="hidden mt-4">
-        </form>
+          <div id="pointer" class="absolute w-5 h-5 rounded-full border-2 border-black pointer-events-none" style="transform: translate(-50%, -50%)"></div>
+
         </div>
         <div class="mt-4 flex justify-center">
           {% csrf_token %}
@@ -273,7 +268,7 @@
             Save Canvas
           </button>
         </div>
-        
+
         <!-- Color Palette -->
         <div class="mt-4 flex justify-center space-x-4">
           <button onclick="setColor('#00FF00')" class="w-8 h-8 rounded-full bg-green-500 border-2 border-white"></button>
@@ -548,7 +543,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <script src="/static/save.js" defer></script>
-      
-       
+
+
   </body>
 </html>
